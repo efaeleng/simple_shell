@@ -283,7 +283,7 @@ $
 
 ## Authors :black_nib:
 
-* **Efa-Iwa Eleng** **||** [Github](https://github.com/efaeleng) **|** [Twitter](https://twitter.com/efaeleng) **|** [email](gistend@gmail.com)  
+* **Efa-Iwa Eleng** **||** [Github](https://github.com/efaeleng) **|** [Twitter](https://twitter.com/efaeleng) **|** [email](efaeleng@protonmail.com)  
 * **Aisimiyu Oluwadarasimi** **||** [Github](https://github.com/Dcrown97) **|** [Twitter](https://twitter.com/MrDarasimi) **|** [email](aisimiyuoluwadara@gmail.com)
 
 ## Acknowledgements :pray:
