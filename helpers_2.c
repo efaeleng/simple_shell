@@ -1,192 +1,138 @@
-/*
- * File: helpers_2.c
- * Auth: Efa-iwa Eleng
- *        Oluwadarasimi
- */
-
 #include "shell.h"
 
-void handle_line(char **line, ssize_t read);
-ssize_t get_new_len(char *line);
-void logical_ops(char *line, ssize_t *new_len);
-
 /**
- * handle_line - Partitions a line read from standard input as needed.
- * @line: A pointer to a line read from standard input.
- * @read: The length of line.
+ * _strtok_r - tokenizes a string
+ * @string: string to be tokenized
+ * @delim: delimiter to be used to tokenize the string
+ * @save_ptr: pointer to be used to keep track of the next token
  *
- * Description: Spaces are inserted to separate ";", "||", and "&&".
- *              Replaces "#" with '\0'.
+ * Return: The next available token
  */
-void handle_line(char **line, ssize_t read)
+char *_strtok_r(char *string, char *delim, char **save_ptr)
 {
-	char *old_line, *new_line;
-	char previous, current, next;
-	size_t i, j;
-	ssize_t new_len;
+	char *finish;
 
-	new_len = get_new_len(*line);
-	if (new_len == read - 1)
-		return;
-	new_line = malloc(new_len + 1);
-	if (!new_line)
-		return;
-	j = 0;
-	old_line = *line;
-	for (i = 0; old_line[i]; i++)
-	{
-		current = old_line[i];
-		next = old_line[i + 1];
-		if (i != 0)
-		{
-			previous = old_line[i - 1];
-			if (current == ';')
-			{
-				if (next == ';' && previous != ' ' && previous != ';')
-				{
-					new_line[j++] = ' ';
-					new_line[j++] = ';';
-					continue;
-				}
-				else if (previous == ';' && next != ' ')
-				{
-					new_line[j++] = ';';
-					new_line[j++] = ' ';
-					continue;
-				}
-				if (previous != ' ')
-					new_line[j++] = ' ';
-				new_line[j++] = ';';
-				if (next != ' ')
-					new_line[j++] = ' ';
-				continue;
-			}
-			else if (current == '&')
-			{
-				if (next == '&' && previous != ' ')
-					new_line[j++] = ' ';
-				else if (previous == '&' && next != ' ')
-				{
-					new_line[j++] = '&';
-					new_line[j++] = ' ';
-					continue;
-				}
-			}
-			else if (current == '|')
-			{
-				if (next == '|' && previous != ' ')
-					new_line[j++]  = ' ';
-				else if (previous == '|' && next != ' ')
-				{
-					new_line[j++] = '|';
-					new_line[j++] = ' ';
-					continue;
-				}
-			}
-		}
-		else if (current == ';')
-		{
-			if (i != 0 && old_line[i - 1] != ' ')
-				new_line[j++] = ' ';
-			new_line[j++] = ';';
-			if (next != ' ' && next != ';')
-				new_line[j++] = ' ';
-			continue;
-		}
-		new_line[j++] = old_line[i];
-	}
-	new_line[j] = '\0';
+	if (string == NULL)
+		string = *save_ptr;
 
-	free(*line);
-	*line = new_line;
+	if (*string == '\0')
+
+		*save_ptr = string;
+	return (NULL);
+}
+
+string += _strspn(string, delim);
+if (*string == '\0')
+{
+	*save_ptr = string;
+	return (NULL);
+}
+
+finish = string + _strcspn(string, delim);
+if (*finish == '\0')
+{
+	*save_ptr = finish;
+	return (string);
+}
+
+*finish = '\0';
+*save_ptr = finish + 1;
+return (string);
 }
 
 /**
- * get_new_len - Gets the new length of a line partitioned
- *               by ";", "||", "&&&", or "#".
- *               @line: The line to check.
+ * _atoi - changes a string to an integer
+ * @s: the string to be changed
  *
- *               Return: The new length of the line.
- *
- *               Description: Cuts short lines containing '#' comments with '\0'.
+ * Return: the converted int
  */
-
-ssize_t get_new_len(char *line)
+int _atoi(char *s)
 {
-	size_t i;
-	ssize_t new_len = 0;
-	char current, next;
+	unsigned int n = 0;
 
-	for (i = 0; line[i]; i++)
-	{
-		current = line[i];
-		next = line[i + 1];
-		if (current == '#')
-		{
-			if (i == 0 || line[i - 1] == ' ')
-			{
-				line[i] = '\0';
-				break;
-			}
-		}
-		else if (i != 0)
-		{
-			if (current == ';')
-			{
-				if (next == ';' && line[i - 1] != ' ' && line[i - 1] != ';')
-				{
-					new_len += 2;
-					continue;
-				}
-				else if (line[i - 1] == ';' && next != ' ')
-				{
-					new_len += 2;
-					continue;
-				}
-				if (line[i - 1] != ' ')
-					new_len++;
-				if (next != ' ')
-					new_len++;
-			}
-			else
-				logical_ops(&line[i], &new_len);
-		}
-		else if (current == ';')
-		{
-			if (i != 0 && line[i - 1] != ' ')
-				new_len++;
-			if (next != ' ' && next != ';')
-				new_len++;
-		}
-		new_len++;
-	}
-	return (new_len);
+	do {
+		if (*s == '-')
+			return (-1);
+		else if ((*s < '0' || *s > '9') && *s != '\0')
+			return (-1);
+		else if (*s >= '0'  && *s <= '9')
+			n = (n * 10) + (*s - '0');
+		else if (n > 0)
+			break;
+	} while (*s++);
+	return (n);
 }
+
 /**
- * logical_ops - Checks a line for logical operators "||" or "&&".
- * @line: A pointer to the character to check in the line.
- * @new_len: Pointer to new_len in get_new_len function.
+ * _realloc - reallocates a memory block
+ * @ptr: pointer to the memory previously allocated with a call to malloc
+ * @old_size: size of ptr
+ * @new_size: size of the new memory to be allocated
+ *
+ * Return: pointer to the address of the new memory block
  */
-void logical_ops(char *line, ssize_t *new_len)
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	char previous, current, next;
+	void *temp_block;
+	unsigned int i;
 
-	previous = *(line - 1);
-	current = *line;
-	next = *(line + 1);
+	if (ptr == NULL)
+	{
+		temp_block = malloc(new_size);
+		return (temp_block);
+	}
+	else if (new_size == old_size)
+		return (ptr);
+	else if (new_size == 0 && ptr != NULL)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	else
+	{
+		temp_block = malloc(new_size);
+		if (temp_block != NULL)
+		{
+			for (i = 0; i < min(old_size, new_size); i++)
+				*((char *)temp_block + i) = *((char *)ptr + i);
+			free(ptr);
+			return (temp_block);
+		}
+		else
+			return (NULL);
 
-	if (current == '&')
-	{
-		if (next == '&' && previous != ' ')
-			(*new_len)++;
-		else if (previous == '&' && next != ' ')
-			(*new_len)++;
 	}
-	else if (current == '|')
+}
+
+/**
+ * ctrl_c_handler - handles the signal raised by CTRL-C
+ * @signum: signal number
+ *
+ * Return: void
+ */
+void ctrl_c_handler(int signum)
+{
+	if (signum == SIGINT)
+		print("\n($) ", STDIN_FILENO);
+}
+
+/**
+ * remove_comment - removes/ignores everything after a '#' char
+ * @input: input to be used
+ *
+ * Return: void
+ */
+void remove_comment(char *input)
+{
+	int i = 0;
+
+	if (input[i] == '#')
+		input[i] = '\0';
+	while (input[i] != '\0')
 	{
-		if (next == '|' && previous != ' ')
-			(*new_len)++;
-		else if (previous == '|' && next != ' ')
-			(*new_len)++;
+		if (input[i] == '#' && input[i - 1] == ' ')
+			break;
+		i++;
 	}
+	input[i] = '\0';
 }
